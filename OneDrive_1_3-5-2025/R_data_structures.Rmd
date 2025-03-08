@@ -1,0 +1,200 @@
+---
+title: "Week 9 Coding Problems ( R: Data Structures)"
+subtitle: "STAT 201 Week 9"
+author: "Rishi Ramaiya"
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+    number-sections: true  # Enables numbering for sections
+
+execute:
+  message: false
+  warning: false
+---
+
+
+
+## Practice Exercise 1
+
+USA’s GDP per capita from 1960 to 2021 is given by the vector G in the code chunk below. The values are arranged in ascending order of the year, i.e., the first value is for 1960, the second value is for 1961, and so on.
+
+```{r}
+G = c(3007, 3067, 3244, 3375,3574, 3828, 4146, 4336, 4696, 5032,5234,5609,6094,6726,7226,7801,8592,9453,10565,11674,12575,13976,14434,15544,17121,18237,19071,20039,21417,22857,23889,24342,25419,26387,27695,28691,29968,31459,32854,34515,36330,37134,37998,39490,41725,44123,46302,48050,48570,47195,48651,50066,51784,53291,55124,56763,57867,59915,62805,65095,63028,69288)
+```
+
+### 
+Use matrix to solve the problem
+
+
+### 
+Find the highest GDP per capita for each five-year period from 1961-1965 to 2015-2020
+
+Hint:
+
+* First, create a matrix where each row represents a five-year period of GDP per capita.
+* Then, use the apply() function to find the maximum GDP per capita within each period
+
+```{r}
+# Define the matrix with 5-year periods
+num_years <- length(G)
+start_year <- 1960
+years <- start_year:(start_year + num_years - 1)
+
+
+indices <- which(years >= 1961 & years <= 2020)
+G_trimmed <- G[indices] 
+years_trimmed <- years[indices]
+
+num_periods <- floor(length(G_trimmed) / 5) 
+G_matrix <- matrix(G_trimmed[1:(num_periods * 5)], nrow = num_periods, byrow = TRUE)
+
+rownames(G_matrix) <- paste(years_trimmed[seq(1, length(years_trimmed), by = 5)], 
+                            years_trimmed[seq(5, length(years_trimmed), by = 5)], sep = "-")
+
+print(G_matrix)
+
+```
+### 
+Identify the highest GDP per capita in the United States across all the five-year periods defined in the previous question. Additionally, determine the specific five-year period and the exact year in which this maximum GDP per capita occurred.
+```{r}
+max_GDP_per_period <- apply(G_matrix, 1, max)
+
+max_GDP <- max(max_GDP_per_period)
+max_period <- names(which.max(max_GDP_per_period))
+
+max_GDP_index <- which(G == max_GDP)
+max_GDP_year <- years[max_GDP_index]
+
+
+
+cat("Highest GDP per capita:", max_GDP, "in the period", max_period, "and year", max_GDP_year, "\n")
+
+
+```
+### 
+Identify the five-year periods which the GDP per capita experienced a continuous decline each year, indicating a period of financial crisis or economic degradation
+```{r}
+# Check for continuous decline in each five-year period
+declining_periods <- apply(G_matrix, 1, function(x) all(diff(x) < 0))
+
+# Get the names of periods where GDP declined every year
+declining_periods_list <- names(declining_periods[declining_periods])
+
+cat("Five-year periods with continuous decline in GDP per capita:", 
+    paste(declining_periods_list, collapse = ", "), "\n")
+
+```
+
+## Practice Exercise 2
+
+```{r}
+capital_cities <- read.csv('capital_cities.csv')
+```
+
+### 
+Use `data.frame` to find the top 10 countries closest to DC
+
+1. Print the names of the countries of the top 10 capital cities closest to the US capital - Washington DC. 
+
+2. Create and print a matrix containing the coordinates of the top 10 capital cities closest to Washington DC.
+
+Note that:
+
+1. The *Country Name* for US is given as *United States* in the data.
+2. The 'closeness' of capital cities from the US capital is based on the Euclidean distance of their coordinates to those of the US capital.
+3. The data includes two records: *United States* and *US Minor Outlying Islands*, both belonging to the U.S., with a distance of zero. These records must be excluded to accurately identify the closest foreign capital cities.
+
+**Hint:**
+
+1. Get the coordinates of Washington DC from `coordinates_capital_cities`. The row that contains the coordinates of DC will have the same index as `United States` has in the vector `country_names`
+
+2. Create a matrix that has coordinates of Washington DC in each row, and has the same number of rows as the matrix `coordinates_capital_cities`.
+
+3. Subtract `coordinates_capital_cities` from the matrix created in (2). Element-wise subtraction will occur between the matrices.
+
+4. Use the `apply()` function on the matrix obtained above to find the Euclidean distance of Washington DC from the rest of the capital cities. 
+
+5. Using the distances obtained above, find the country that has the closest capital to DC (Euclidean distance > 0).
+
+```{r}
+# 1. Get the coordinates of Washington DC
+dc_row <- capital_cities[capital_cities$`Country.Name` == "United States", ]
+# Check if the United States row is found correctly
+print(dc_row)
+
+# Extract coordinates of Washington DC (capital of the United States)
+dc_coords <- c(dc_row$`Capital.Latitude`, dc_row$`Capital.Longitude`)
+
+# Check if the coordinates are correctly extracted
+print(dc_coords)
+
+# 2. Create a matrix with Washington DC's coordinates in each row
+dc_matrix <- matrix(rep(dc_coords, nrow(capital_cities)), ncol = 2, byrow = TRUE)
+
+# 3. Subtract coordinates of each capital from Washington DC's coordinates
+coord_diff <- cbind(capital_cities$`Capital.Latitude`, capital_cities$`Capital.Longitude`) - dc_matrix
+
+# Check the coord_diff to make sure it's calculated correctly
+print(head(coord_diff))
+
+# 4. Compute the Euclidean distances using apply()
+distances <- apply(coord_diff, 1, function(x) sqrt(sum(x^2)))
+
+# Check the distances to ensure they're being computed correctly
+print(head(distances))
+
+# 5. Exclude distance to Washington DC (which is 0) and find the closest capital
+distances <- distances[distances > 0]  # Exclude distance to Washington DC itself (which is 0)
+# Check if any distances remain
+if (length(distances) > 0) {
+  closest_index <- which.min(distances)
+  closest_country <- capital_cities$`Country.Name`[closest_index]
+  closest_distance <- distances[closest_index]
+  
+  # Print the result
+  cat("The closest capital to Washington DC is", closest_country, "with a distance of", closest_distance, "\n")
+} else {
+  cat("No valid distances found.\n")
+}
+
+```
+## Exercise 3
+
+```{r}
+movies <- read.csv("movies.csv", stringsAsFactors = FALSE)
+```
+
+
+#### 
+What is the datatype of the object `movies`?
+
+
+
+#### 
+Count the number movies having a negative profit, i.e., their production budget is higher than their worldwide gross. 
+
+Ignore the movies that:
+
+1. Have missing values of production budget or worldwide gross. 
+
+2. Have a zero worldwide gross *(A zero worldwide gross is probably an incorrect value)*. 
+
+```{r}
+
+
+movies <- read.csv("movies.csv", stringsAsFactors = FALSE)
+
+
+negative_profit_movies <- movies[!is.na(movies$production_budget) & 
+                                !is.na(movies$worldwide_gross) & 
+                                movies$worldwide_gross != 0 & 
+                                movies$production_budget > movies$worldwide_gross, ]
+
+
+num_negative_profit <- nrow(negative_profit_movies)
+
+
+print(num_negative_profit)
+```

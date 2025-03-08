@@ -1,0 +1,165 @@
+---
+title: "Week 7 Coding Problems ( R basics and control flow tools)"
+subtitle: "STAT 201 Week 7"
+author: "Rishi Ramaiya"
+
+format:
+  html:
+    toc: true
+    embed-resources: true
+
+execute:
+  message: false
+  warning: false
+---
+
+Please finish all the tasks in this markdown file and submit it to the quiz
+
+### Practice exercise 1
+
+Try converting the following Python string operations into equivalent R code:
+
+```
+s = "Data Science"
+print(len(s))
+print(s[5:])
+print(s.replace("Data", "AI"))
+```
+
+s <- "Data Science"
+print(nchar(s))
+print(substr(s, 6, nchar(s)))
+print(sub("Data", "AI, s))
+
+
+### Practice exercise 2
+Define a `character`  and count the number of *t*s.
+Use `strsplit()` to implement this function.
+
+
+char_vec <- "Getting a tatto is not a nice experience"
+
+character <-strsplit(char_vec, NULL)[[1]]
+
+t_count <- sum(character == "t")
+
+print(t_count)
+
+### Practice exercise 3
+
+Write a program that prints the number of 'the's found in sentence
+Use `strsplit()` to implement this function
+
+
+sentence <- "She sells the sea shells on the sea shore during the summer"
+
+words <- unlist(strsplit(sentence, " "))
+
+count_the <- sum(words == "the")
+
+
+print(count_the)
+### Practice exercise 4
+
+#### Problem 1
+
+
+
+
+
+Using `my_num` above:
+
+my_num <- "0"
+
+- check if the number is numeric
+- convert the number to numeric
+
+
+is_numeric <- is.numeric(my_num)
+print(is_numeric)
+
+my_num_numeric <- as.numeric(my_num)
+
+#### Problem 2
+
+- Define a variable to be your name.
+- Define a variable to be your favorite number.
+- Define a variable to be your favorite color.
+
+- Print a sentence that reads: "My name is {} and my favorite number is {}".
+- Store a variable that checks if your favorite number is less than 10. Print this variable.
+- Store a variable that checks if your favorite number is even. Print this variable.
+- Store a variable that checks if your favorite color is "red". Print this variable.
+- Convert one of your stored Boolean to a numeric data type. What happens?
+
+- Print a statement that returns TRUE if your favorite number is less than 10 and favorite color is NOT red and returns FALSE otherwise.
+- Print a statement that return TRUE if your favorite number is even or less than 10.
+
+my_name <- "Rishi"
+favorite_number <- 7
+favorite_color <- "Blue"
+
+print(paste("My name is", my_name, "and my favorite number is", favorite_number))
+
+is_less_than_10 <- favorite_number < 10
+print(is_less_than_10)
+
+is_even <- favorite_number %% 2 == 0
+print(is_even)
+
+is_red <- favorite_color =="red"
+print(is_red)
+
+numeric_bool <- as.numeric(is_less_than_10)
+print(numeric_bool)
+- wow it prints 1 if true and 0 if false!
+
+print(is_less_than_10 & !is_red)
+
+print(is_even | is_less_than_10)
+
+### Practice exercise 5
+
+write a program that asks the user to enter their age and ensures the input is a **valid integer**. The code should handle incorrect inputs and guide the user until they provide a valid response.
+
+**Requirements**
+
+- The script should **continuously prompt the user** until they enter a valid integer.
+- If the input is **not an integer**, the script should display an error message and ask again.
+- Once a valid integer is entered:
+  - If the age is **18 or older**, display: `"You are an adult."`
+  - If the age is **less than 18**, display: `"You are a minor."`
+
+**Guidelines & Hints**
+
+- Use **`readline()`** to collect user input.
+- Convert the input using **`as.integer()`** and check if it returns **`NA`** for invalid inputs.
+- Utilize **a loop** to ensure the user is repeatedly prompted until they enter a valid integer.
+- Provide **clear error messages** to guide the user.
+
+
+**Example User Interaction**
+
+| Input            | Output |
+|-----------------|----------------|
+| `"abc"`         | `"Please enter a valid integer for age."` |
+| `"twenty"`      | `"Please enter a valid integer for age."` |
+| `"18"`          | `"You are an adult."` |
+| `"17"`          | `"You are a minor."` |
+
+repeat {
+user_input <- readline(prompt = "Enter your age")
+age <- as.integer(user_input)
+
+if(!is.na(age)) {
+  if(age > 18){
+    print("You are an adult")
+}else{
+  print("You are a minor")
+  
+}
+break
+}else{
+print("Please enter a valid integer for age.")
+}
+}
